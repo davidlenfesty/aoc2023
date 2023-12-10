@@ -128,10 +128,44 @@
       ; EOF, return count
       count)))
 
+(define open-input
+  (lambda ()
+    (open-file-input-port "inputs/day2" (file-options) (buffer-mode line) (native-transcoder))))
+
 (begin
   (display "Game 1 results: ")
   (display
-    (part1
-      (open-file-input-port "inputs/day2" (file-options) (buffer-mode line) (native-transcoder))
-      0))
+    (part1 (open-input) 0))
+  (display "\n"))
+
+; Part 2
+(define smallest-bag
+  (lambda (game . bag)
+    (let [
+      (bag (if (null? bag) '(0 0 0) (car bag)))
+      ]
+      (cond
+        [(null? game) bag]
+        [#t (smallest-bag (cdr game)
+          (let ((round (car game)))
+            (list
+              (max (car round) (car bag))
+              (max (cadr round) (cadr bag))
+              (max (caddr round) (caddr bag))))
+              )]
+      ))))
+
+(define bag-power
+  (lambda (bag)
+    (* (car bag) (* (cadr bag) (caddr bag)))))
+
+(define part2
+  (lambda (input power)
+    (if (not (port-eof? input))
+      (part2 input (+ power (bag-power (smallest-bag (cadr (parse-line (get-line input)))))))
+      power)))
+
+(begin
+  (display "game 2 results: ")
+  (display (part2 (open-input) 0))
   (display "\n"))
