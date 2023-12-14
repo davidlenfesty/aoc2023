@@ -144,22 +144,20 @@
           (car neighbours)
           (loop (cdr neighbours)))))))
 
-;    (let loop [
-;        (neighbours
-;          ;(remove-neighbouring-duplicates
-;            (get-neighbours lines dimensions position));)
-;      ]
-;      (if (null? neighbours)
-;        0
-;        (+
-;          (car neighbours)
-;          (loop (cdr neighbours)))))))
+(define multiply-two-neighbours
+  (lambda (lines dimensions position)
+    (let [
+        (neighbours
+          (remove-neighbouring-duplicates
+            (get-neighbours lines dimensions position)))
+      ]
+      (if (= (length neighbours) 2)
+        (* (car neighbours) (cadr neighbours))
+        0))))
 
-
-; calculate part 1
-(let [
-    (lines (list->vector
-      (let parse-lines [
+(define input
+  (list->vector
+    (let parse-lines [
           (file (open-input 3))
         ]
         (if (port-eof? file)
@@ -167,10 +165,11 @@
           (cons
             (parse-line (get-line file) 0)
             (parse-lines file))))))
-  ]
-  (begin
-    (display "Part 1 results: ")
-    (display (let [
+
+
+(define calculate
+  (lambda (subcalc lines)
+    (let [
         (xsize (vector-length (vector-ref lines 0)))
         (ysize (vector-length lines))
       ]
@@ -185,7 +184,16 @@
             (loop 0 (+ y 1))
             (+
               (if (boolean? (vector-ref (vector-ref lines y) x))
-                (add-neighbours lines (list xsize ysize) (list x y))
+                (subcalc lines (list xsize ysize) (list x y))
                 0)
               (loop (+ x 1) y))))))))
-    (display "\n"))
+
+(begin
+  (display "Part 1 results: ")
+  (display (calculate add-neighbours input))
+  (display "\n"))
+
+(begin
+  (display "Part 2 results: ")
+  (display (calculate multiply-two-neighbours input))
+  (display "\n"))
